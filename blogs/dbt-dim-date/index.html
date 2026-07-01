@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stop rebuilding date dimensions from scratch</title>
+    <meta name="description" content="A blog post about using dbt_date to generate dim_date models in dbt." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../../styles.css" />
+  </head>
+  <body>
+    <nav class="top-nav" aria-label="Primary navigation">
+      <a href="../../index.html">Home</a>
+      <a href="../../index.html#skills">Skills</a>
+      <a href="../../index.html#experience">Experience</a>
+      <a href="../../index.html#blog">Blog</a>
+    </nav>
+
+    <main class="article-page">
+      <article class="article-card">
+        <p class="blog-card__meta">dbt</p>
+        <h1>Stop rebuilding date dimensions from scratch</h1>
+        <p class="article-card__intro">
+          If you are still writing long SQL scripts with loops and hardcoded date ranges to build
+          a dim_date table in dbt, it is time to work smarter.
+        </p>
+        <div class="article-content">
+          <p>
+            The <strong>godatadriven/dbt_date</strong> package is a practical solution for
+            analytics engineers because it handles much of the boilerplate for you through
+            pre-built macros.
+          </p>
+          <h2>Why dbt_date is worth using</h2>
+          <p>
+            Instead of manually generating date logic, dbt_date gives you a complete date
+            dimension with very little effort. That means you can focus more on modeling and less
+            on repetitive SQL.
+          </p>
+          <p>
+            To create a dim_date model, you can use a single macro call in your model file:
+          </p>
+          <pre><code>{{ dbt_date.get_date_dimension("2020-01-01", "2030-12-31") }}</code></pre>
+          <p>
+            That one line can generate a dense and useful date table with columns for days,
+            weeks, months, quarters, years, day names, fiscal periods, and weekend flags.
+          </p>
+          <h2>Why a date dimension matters</h2>
+          <ul>
+            <li>Performance: joining a fact table to a precomputed date dimension is often faster than applying date functions repeatedly at query time.</li>
+            <li>Consistency: it gives everyone a shared definition of concepts like Week 1 or Q3.</li>
+            <li>Time intelligence: it makes reporting patterns like YoY, MTD, and holiday analysis much easier.</li>
+          </ul>
+          <h2>Where dim_date should live</h2>
+          <p>
+            In a well-structured dbt project, a date dimension belongs in the core marts layer
+            because it is a foundational and reusable asset.
+          </p>
+          <pre><code>my_dbt_project/
+├── models/
+│   ├── staging/
+│   └── marts/
+│       ├── core/
+│       │   ├── dim_date.sql
+│       │   └── dim_customers.sql
+│       ├── marketing/
+│       └── finance/</code></pre>
+          <p>
+            Keeping dim_date in the core marts folder makes it easy for other downstream models
+            to reuse it as a single source of truth.
+          </p>
+          <h2>Quick setup guide</h2>
+          <ol>
+            <li>Add calogica/dbt_date to your packages.yml file.</li>
+            <li>Run dbt deps to install the package.</li>
+            <li>Create a dim_date.sql model in models/marts/core/.</li>
+            <li>Run dbt run and let the package generate the table.</li>
+          </ol>
+          <p>
+            If you are still hand-building date tables, dbt_date is a strong upgrade. It reduces
+            complexity, saves time, and makes your analytics models easier to maintain.
+          </p>
+        </div>
+      </article>
+    </main>
+  </body>
+</html>

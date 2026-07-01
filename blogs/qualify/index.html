@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stop using CTEs just to filter window functions</title>
+    <meta name="description" content="A blog post about using QUALIFY for window function filters in SQL." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../../styles.css" />
+  </head>
+  <body>
+    <nav class="top-nav" aria-label="Primary navigation">
+      <a href="../../index.html">Home</a>
+      <a href="../../index.html#skills">Skills</a>
+      <a href="../../index.html#experience">Experience</a>
+      <a href="../../index.html#blog">Blog</a>
+    </nav>
+
+    <main class="article-page">
+      <article class="article-card">
+        <p class="blog-card__meta">SQL</p>
+        <h1>Stop using CTEs just to filter window functions</h1>
+        <p class="article-card__intro">
+          If you have ever wrapped a window-function query in a CTE just to filter the final
+          result, you are not alone. QUALIFY can make that pattern much simpler.
+        </p>
+        <div class="article-content">
+          <p>
+            If you have ever wrapped a window-function query in a CTE just to filter the final
+            result, you are not alone. It is a common pattern when you want the top row per
+            group, the latest record, or the highest value in a category.
+          </p>
+          <p>But there is a cleaner approach.</p>
+          <h2>Meet QUALIFY</h2>
+          <p>
+            QUALIFY is a SQL feature that lets you filter the output of window functions
+            directly. It works like a companion to WHERE and HAVING, but instead of filtering
+            rows or grouped data, it filters the result of functions such as ROW_NUMBER(),
+            RANK(), DENSE_RANK(), and SUM() over a window.
+          </p>
+          <p>That means you can skip the extra subquery or CTE in many cases.</p>
+          <h3>Example</h3>
+          <p>Here is the traditional approach:</p>
+          <pre><code>WITH RankedData AS (
+    SELECT *,
+           ROW_NUMBER() OVER (
+               PARTITION BY department
+               ORDER BY salary DESC
+           ) AS rn
+    FROM employees
+)
+SELECT *
+FROM RankedData
+WHERE rn = 1;</code></pre>
+          <p>The same logic becomes much simpler with QUALIFY:</p>
+          <pre><code>SELECT *
+FROM employees
+QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY department
+    ORDER BY salary DESC
+) = 1;</code></pre>
+          <h2>Why it is useful</h2>
+          <p>
+            QUALIFY can make your SQL easier to read and maintain because it removes
+            unnecessary nesting. Some of the biggest benefits are:
+          </p>
+          <ul>
+            <li>Fewer layers of logic</li>
+            <li>Less boilerplate code</li>
+            <li>Easier debugging and review</li>
+            <li>Cleaner intent when the filter is directly tied to a window function</li>
+          </ul>
+          <h2>One important limitation</h2>
+          <p>
+            QUALIFY is not part of standard ANSI SQL. It is supported natively in platforms such
+            as Snowflake, BigQuery, and Teradata. If you are using PostgreSQL or SQL Server,
+            you will still need to rely on the traditional CTE or subquery pattern.
+          </p>
+          <h2>Final thought</h2>
+          <p>
+            If you are already using window functions in your data pipelines, QUALIFY is worth
+            exploring. It can reduce clutter, make your SQL more expressive, and help your team
+            focus on the business logic instead of the wrapper code.
+          </p>
+        </div>
+      </article>
+    </main>
+  </body>
+</html>
